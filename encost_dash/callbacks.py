@@ -3,7 +3,6 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from .data import get_data_from_db
 
-
 import dash_table
 import plotly.express as px
 
@@ -13,9 +12,16 @@ def create_pie_chart(df):
 
 
 def create_gantt_chart(df):
+    df['duration_min'] = df['duration_min'].round()
+    df = df.drop(columns=['duration_hour'])
     return px.timeline(df, x_start='state_begin', x_end='state_end', y='endpoint_name', color='state',
-                       hover_data=['duration_hour', 'duration_min'])
-
+                       hover_data={
+                                   'Duration (min)': df['duration_min'],
+                                   'Shift Day': df['shift_day'],
+                                   'Shift Name': df['shift_name'],
+                                   'Operator': df['operator']
+                                },
+                       hover_name='state')
 
 def register_callbacks(app):
     @app.callback(
